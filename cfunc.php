@@ -97,6 +97,7 @@ function tokenize($string) {
 			$current += 1;
 		}
 		//need parenthesis support!
+		else { $current += 1; }
 	}
 	return $res;
 }
@@ -137,6 +138,6 @@ function createTree(array $tokens) {
 	}
 }
 function createFunc($string) {
-	return createTree(tokenize($string)):
+	return createTree(tokenize($string));
 }
 ?>
