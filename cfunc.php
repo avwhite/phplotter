@@ -59,12 +59,12 @@ class Op implements Node {
 	}
 }
 class Par implements Node {
-	private $content;
+	private $contents;
 	public function __construct(Node $content) {
-		$this->content = content;
+		$this->contents = $content;
 	}
 	public function evalu($var) {
-		return $this->content->evalu();
+		return $this->contents->evalu($var);
 	}
 }
 class Varx implements Node {
@@ -138,7 +138,9 @@ function createTree(array $tokens) {
 			}
 		}
 	}
-	//This function also needs paranthesis support here!
+	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Par) {
+		return new Par(createTree($tokens[0]->getVal()));
+	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Lit) {
 		return new Lit($tokens[0]->getVal());
 	}
