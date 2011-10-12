@@ -96,7 +96,16 @@ function tokenize($string) {
 			$res[] = new Token(TokenType::Varx, "x");
 			$current += 1;
 		}
-		//need parenthesis support!
+		else if($string[$current] === "(") {
+			$current += 1;
+			$holder = "";
+			while($string[$current] != ")") {
+				$holder .= $string[$current];
+				$current += 1;
+			}
+			$res[] = new Token(TokenType::Par, tokenize($holder));
+			$current += 1;
+		}
 		else { $current += 1; }
 	}
 	return $res;
