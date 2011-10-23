@@ -33,19 +33,14 @@ function setPixel($img, Point $p, $color) {
 
 header('Content-type: image/png');
 
-
-$mathString = $_GET['expr'];
-$f = createFunc($mathString);
-
 $img = imagecreate(WIDTH, HEIGHT);
-
 $black = imagecolorallocate($img, 0, 0, 0);
 $blue = imagecolorallocate($img, 0, 0, 255);
-
 imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
+$f = createFunc($_GET['expr']);
 $width = WIDTH;
-$range = 20;
+$range = $_GET['xr'];
 $incr = $range / $width;
 
 //little cool idea for myself: Maybe this loop could generate an array of Points,
