@@ -44,26 +44,9 @@ $yrange = $_GET['yr'];
 $xincr = $xrange / WIDTH;
 $yincr = HEIGHT / $yrange;
 
-//little cool idea for myself: Maybe this loop could generate an array of Points,
-//and another function could handle drawing lines. The some point could be 'invalid'
-//and that other function would handle that!
-//seems like a nice structre, but maybe there is a performance hit?
-//after thought: This would be a good way to find the highest y value and automatically
-//scale the y axis.
 for($i = 0; $i <= WIDTH; $i += 1) {
 	setPixel($img, new Point($i, $f->evalu($i * $xincr) * $yincr), $blue);
 }
-
-/*$lx = 0;
-$ly = $f->evalu(0);
-
-for($i = 0; $i < 100; $i += 10) {
-	$nx = $i;
-	$ny = $f->evalu($i);
-	imageline($img, $lx, $ly, $nx, $ny, $blue); 
-	$lx = $nx;
-	$ly = $ny;
-}*/
 
 imagepng($img);
 imagedestroy($image);
