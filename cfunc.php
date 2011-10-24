@@ -1,4 +1,5 @@
 <?php
+include('andfunc.php');
 class TokenType {
 	const Op = 0;
 	const Lit = 1;
@@ -42,19 +43,19 @@ class Op implements Node {
 	}
 	public function evalu($var) {
 		if($this->kind === "+") {
-			return $this->left->evalu($var) + $this->right->evalu($var);
+			return add($this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "-") {
-			return $this->left->evalu($var) - $this->right->evalu($var);
+			return sub($this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "*") {
-			return $this->left->evalu($var) * $this->right->evalu($var);
+			return mul($this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "/") {
-			return $this->left->evalu($var) / $this->right->evalu($var);
+			return div($this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "^") {
-			return pow($this->left->evalu($var), $this->right->evalu($var));
+			return expo($this->left->evalu($var), $this->right->evalu($var));
 		}
 	}
 }

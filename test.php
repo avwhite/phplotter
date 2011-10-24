@@ -1,3 +1,4 @@
+<?php include('cfunc.php'); ?>
 <html>
 	<head>
 		<title>Test of cfunc</title>
@@ -10,6 +11,7 @@
 			<input type="submit" />
 		</form>
 		<?php
+		echo createFunc($_REQUEST['func'])->evalu(1)."<br />";
 		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xr='.$_REQUEST['xr'].'&yr='.$_REQUEST['yr'].'" />';
 		?>
 		<br />
