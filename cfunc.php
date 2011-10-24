@@ -85,7 +85,7 @@ function tokenize($string) {
 		}
 		else if(ctype_digit($string[$current])) {
 			$holder = "";
-			while(ctype_digit($string[$current])) {
+			while(ctype_digit($string[$current]) || $string[$current] == ".") {
 				$holder .= $string[$current];
 				$current += 1;
 				if($current >= strlen($string)) { break; }

@@ -35,7 +35,7 @@ header('Content-type: image/png');
 
 $img = imagecreate(WIDTH, HEIGHT);
 $black = imagecolorallocate($img, 0, 0, 0);
-$blue = imagecolorallocate($img, 0, 0, 255);
+$blue = imagecolorallocate($img, 0, 255, 0);
 imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
 $f = createFunc($_GET['expr']);
