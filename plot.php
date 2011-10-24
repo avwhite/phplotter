@@ -39,9 +39,10 @@ $blue = imagecolorallocate($img, 0, 0, 255);
 imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
 $f = createFunc($_GET['expr']);
-$width = WIDTH;
-$range = $_GET['xr'];
-$incr = $range / $width;
+$xrange = $_GET['xr'];
+$yrange = $_GET['yr'];
+$xincr = $xrange / WIDTH;
+$yincr = HEIGHT / $yrange;
 
 //little cool idea for myself: Maybe this loop could generate an array of Points,
 //and another function could handle drawing lines. The some point could be 'invalid'
@@ -50,7 +51,7 @@ $incr = $range / $width;
 //after thought: This would be a good way to find the highest y value and automatically
 //scale the y axis.
 for($i = 0; $i <= WIDTH; $i += 1) {
-	setPixel($img, new Point($i, $f->evalu($i * $incr)), $blue);
+	setPixel($img, new Point($i, $f->evalu($i * $xincr) * $yincr), $blue);
 }
 
 /*$lx = 0;

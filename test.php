@@ -5,11 +5,12 @@
 	<body>
 		<form method="post" action="test.php" />
 			f(x)=<input type="text" name="func" /><br />
-			x-range=<input type="test" name="xr" />
+			x-range=<input type="text" name="xr" /><br />
+			y-range=<input type="text" name="yr" />
 			<input type="submit" />
 		</form>
 		<?php
-		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xr='.$_REQUEST['xr'].'" />';
+		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xr='.$_REQUEST['xr'].'&yr='.$_REQUEST['yr'].'" />';
 		?>
 		<br />
 	</body>
