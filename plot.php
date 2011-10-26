@@ -39,13 +39,19 @@ $blue = imagecolorallocate($img, 0, 255, 0);
 imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
 $f = createFunc($_GET['expr']);
-$xrange = $_GET['xr'];
-$yrange = $_GET['yr'];
+$xmin = $_GET['xmin'];
+$xmax = $_GET['xmax'];
+$ymin = $_GET['ymin'];
+$ymax = $_GET['ymax'];
+$xrange = $xmax - $xmin;
+$yrange = $ymax - $ymin;
+//How many units does one pixel correspond to(on the x-axis)?:
 $xincr = $xrange / WIDTH;
+//How many pixels does one unit correspond to(on the y-axis)?:
 $yincr = HEIGHT / $yrange;
 
 for($i = 0; $i <= WIDTH; $i += 1) {
-	setPixel($img, new Point($i, $f->evalu($i * $xincr) * $yincr), $blue);
+	setPixel($img, new Point($i, ($f->evalu(($i * $xincr) + $xmin) * $yincr) - $ymin), $blue);
 }
 
 imagepng($img);

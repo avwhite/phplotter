@@ -6,13 +6,13 @@
 	<body>
 		<form method="post" action="test.php" />
 			f(x)=<input type="text" name="func" /><br />
-			x-range=<input type="text" name="xr" /><br />
-			y-range=<input type="text" name="yr" />
+			xmin=<input type="text" name="xmin" />xmax=<input type="text" name="xmax" /><br />
+			ymin=<input type="text" name="ymin" />ymax=<input type="text" name="ymax" />
 			<input type="submit" />
 		</form>
 		<?php
 		echo createFunc($_REQUEST['func'])->evalu(1)."<br />";
-		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xr='.$_REQUEST['xr'].'&yr='.$_REQUEST['yr'].'" />';
+		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xmin='.$_REQUEST['xmin'].'&xmax='.$_REQUEST['xmax'].'&ymin='.$_REQUEST['ymin'].'&ymax='.$_REQUEST['ymax'].'" />';
 		?>
 		<br />
 	</body>
