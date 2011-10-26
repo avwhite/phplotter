@@ -51,7 +51,9 @@ $xincr = $xrange / WIDTH;
 $yincr = HEIGHT / $yrange;
 
 for($i = 0; $i <= WIDTH; $i += 1) {
-	setPixel($img, new Point($i, ($f->evalu(($i * $xincr) + $xmin) * $yincr) - $ymin), $blue);
+	//note, the operations and the order of them used for this calculation actually does make sense
+	//So don't fuck with them, cus that sense is really hard to find. They work like this (i hope)
+	setPixel($img, new Point($i, ($f->evalu(($i * $xincr) + $xmin) - $ymin) * $yincr), $blue);
 }
 
 imagepng($img);
