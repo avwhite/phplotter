@@ -9,7 +9,8 @@ define("WIDTH", 500);
 define("HEIGHT", 500);
 
 /////////////
-//wrappers n' shit, to make the rest of the code look nice(because PHP GD is ugly)
+//wrappers n' shit, to make the rest of the code look nice
+//Maybe i should drop this Point OOP thing, it seems to just get in the way?
 class Point {
 	public function __construct($x, $y) {
 		$this->x = $x;
@@ -28,6 +29,11 @@ function setPixel($img, Point $p, $color) {
 	$p2 = tc($p);
 	imagesetpixel($img, $p2->x, $p2->y, $color);
 }
+function drawLine($img, Point $from, Point $to, $color) {
+	$f2 = tc($from);
+	$t2 = tc($to);
+	imageline($img, $f2->x, $f2->y, $t2->x, $t2->y, $color);
+}
 /////////////
 //the rest of the code:
 
@@ -36,6 +42,7 @@ header('Content-type: image/png');
 $img = imagecreate(WIDTH, HEIGHT);
 $black = imagecolorallocate($img, 0, 0, 0);
 $blue = imagecolorallocate($img, 0, 255, 0);
+$white = imagecolorallocate($img, 255, 255, 255);
 imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
 $f = createFunc($_GET['expr']);
@@ -47,13 +54,22 @@ $xrange = $xmax - $xmin;
 $yrange = $ymax - $ymin;
 //How many units does one pixel correspond to(on the x-axis)?:
 $xincr = $xrange / WIDTH;
-//How many pixels does one unit correspond to(on the y-axis)?:
-$yincr = HEIGHT / $yrange;
+//How many units does one pixel correspond to(on the y-axis)?:
+$yincr = $yrange / HEIGHT;
+
+$ylowBound = new Point(0, (0-$ymin) / $yincr);
+$yhighBound = new Point(WIDTH, (0-$ymin) / $yincr);
+
+$xlowBound = new Point((0-$xmin) / $xincr, 0);
+$xhighBound = new Point((0-$xmin) / $xincr, HEIGHT);
+
+drawLine($img, $xlowBound, $xhighBound, $white);
+drawLine($img, $ylowBound, $yhighBound, $white);
 
 for($i = 0; $i <= WIDTH; $i += 1) {
 	//note, the operations and the order of them used for this calculation actually does make sense
 	//So don't fuck with them, cus that sense is really hard to find. They work like this (i hope)
-	setPixel($img, new Point($i, ($f->evalu(($i * $xincr) + $xmin) - $ymin) * $yincr), $blue);
+	setPixel($img, new Point($i, ($f->evalu(($i * $xincr) + $xmin) - $ymin) / $yincr), $blue);
 }
 
 imagepng($img);
