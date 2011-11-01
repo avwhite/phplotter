@@ -99,9 +99,12 @@ function tokenize($string) {
 		}
 		else if($string[$current] === "(") {
 			$current += 1;
+			$nestLevel = 0;
 			$holder = "";
-			while($string[$current] != ")") {
+			while(!($string[$current] === ")" && $nestLevel === 0)) {
 				$holder .= $string[$current];
+				if($string[$current] === '(') {$nestLevel += 1;}
+				if($string[$current] === ')') {$nestLevel -= 1;}
 				$current += 1;
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
