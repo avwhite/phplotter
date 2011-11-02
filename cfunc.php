@@ -6,6 +6,12 @@ class TokenType {
 	const Par = 2;
 	const Varx = 3;
 }
+Define("ADDS", "+");
+Define("SUBS", "-");
+Define("MULS", "*");
+Define("DIVS", "/");
+Define("EXPS", "^");
+
 class Token {
 	private $kind;
 	private $val;
