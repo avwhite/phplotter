@@ -31,8 +31,8 @@ $xincr = $xrange / WIDTH;
 //How many units does one pixel correspond to(on the y-axis)?:
 $yincr = $yrange / HEIGHT;
 
-$xzero = (0-$ymin) / $yincr;
-$yzero = (0-$xmin) / $xincr;
+$yzero = (0-$ymin) / $yincr;
+$xzero = (0-$xmin) / $xincr;
 drawLine($img, $xzero, 0, $xzero, HEIGHT, $white);
 drawLine($img, 0, $yzero, WIDTH, $yzero, $white);
 
