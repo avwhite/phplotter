@@ -21,7 +21,7 @@ function mul($a, $b) {
 	}
 }
 function div($a, $b) {
-	if($b === 0) { return null; }
+	if($b == 0) { return null; }
 	if($a === null || $b === null) {
 		return null;
 	} else {

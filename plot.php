@@ -4,6 +4,7 @@ include('cfunc.php');
 define("WIDTH", 500);
 define("HEIGHT", 500);
 
+
 function cy($y) {
 	return HEIGHT - $y;
 }
@@ -11,7 +12,8 @@ function drawLine($img, $x1, $y1, $x2, $y2, $color) {
 	imageline($img, $x1, cy($y1), $x2, cy($y2), $color);
 }
 
-header('Content-type: image/png');
+//This line should probably be uncommmented in the final version
+#header('Content-type: image/png');
 
 $img = imagecreate(WIDTH, HEIGHT);
 $black = imagecolorallocate($img, 0, 0, 0);
@@ -38,12 +40,13 @@ drawLine($img, 0, $yzero, WIDTH, $yzero, $white);
 
 $lasty = null;
 for($i = 0; $i <= WIDTH; $i += 1) {
-	$currenty = ($f->evalu($i * $xincr + $xmin) - $ymin) / $yincr;
-	if($lasty != null && $currenty != null) {
+	$currenty =($f->evalu($i * $xincr + $xmin) - $ymin) / $yincr;
+	if(($lasty != null && $currenty != null)) {
 		drawLine($img, $i - 1, $lasty, $i, $currenty, $blue);
 	}
 	$lasty = $currenty;
 }
+
 
 imagepng($img);
 imagedestroy($image);
