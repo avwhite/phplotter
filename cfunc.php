@@ -12,6 +12,47 @@ Define("MULS", "*");
 Define("DIVS", "/");
 Define("EXPS", "^");
 
+//This class represents a value or an error. Inspiration is taken from the haskell Maybe/Either classes.
+class Maybe {
+	private function __construct() {}
+	private $val;
+	private $error;
+	private $isError;
+
+	public static function just($val) {
+		$instance = new Maybe;
+		$instance->val= $val;
+		$instance->error=null;
+		$instance->isError=false;
+		return $instance;
+	}
+	public static function error($msg) {
+		$instance = new Maybe;
+		$instance->val= null;
+		$instance->error=$msg;
+		$instance->isError=true;
+		return $instance;
+	}
+
+	public function e() { return $isError; }
+	public function v() { return $val; }
+	public function m() { return $error; }
+}
+
+//This class implements a monadic bind function for Maybe. Inspiration again taken from haskell.
+//Using bind instead of function normal function application, makes is possible to treat Maybe's 
+//as normal values.
+function bind($func, Maybe $maybeVal) {
+	if($maybeVal->e()) {
+		return $maybeVal;
+	} else {
+		return $func($maybeVal->v());
+	}
+}
+
+//Just defining return, so Maybe officially is a monad.
+function mreturn($val) {return Maybe::just($val);}
+
 class Token {
 	private $kind;
 	private $val;
@@ -112,13 +153,14 @@ function tokenize($string) {
 				if($string[$current] === '(') {$nestLevel += 1;}
 				if($string[$current] === ')') {$nestLevel -= 1;}
 				$current += 1;
+				if($current > strlen($string)) {return Maybe::error("No matching ')' found");}
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
 			$current += 1;
 		}
 		else { $current += 1; }
 	}
-	return $res;
+	return Maybe::just($res);
 }
 function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
@@ -159,6 +201,8 @@ function createTree(array $tokens) {
 	}
 }
 function createFunc($string) {
-	return createTree(tokenize($string));
+	//everything written in the Maybe monad... so hardcore!
+	//the syntax isent as pretty as in haskell though...
+	return bind('createTree', bind('tokenize', mreturn($string)));
 }
 ?>
