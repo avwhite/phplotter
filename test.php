@@ -12,7 +12,6 @@
 			<input type="submit" />
 		</form>
 		<?php
-		echo createFunc($_REQUEST['func'])->evalu(1)."<br />";
 		echo '<img src="plot.php?expr='.urlencode($_REQUEST['func']).'&xmin='.$_REQUEST['xmin'].'&xmax='.$_REQUEST['xmax'].'&ymin='.$_REQUEST['ymin'].'&ymax='.$_REQUEST['ymax'].'" />';
 		?>
 		<br />

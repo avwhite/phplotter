@@ -1,5 +1,7 @@
 <?php
 include('andfunc.php');
+include_once('maybe.php');
+
 class TokenType {
 	const Op = 0;
 	const Lit = 1;
@@ -11,47 +13,6 @@ Define("SUBS", "-");
 Define("MULS", "*");
 Define("DIVS", "/");
 Define("EXPS", "^");
-
-//This class represents a value or an error. Inspiration is taken from the haskell Maybe/Either classes.
-class Maybe {
-	private function __construct() {}
-	private $val;
-	private $error;
-	private $isError;
-
-	public static function just($val) {
-		$instance = new Maybe;
-		$instance->val= $val;
-		$instance->error=null;
-		$instance->isError=false;
-		return $instance;
-	}
-	public static function error($msg) {
-		$instance = new Maybe;
-		$instance->val= null;
-		$instance->error=$msg;
-		$instance->isError=true;
-		return $instance;
-	}
-
-	public function e() { return $isError; }
-	public function v() { return $val; }
-	public function m() { return $error; }
-}
-
-//This class implements a monadic bind function for Maybe. Inspiration again taken from haskell.
-//Using bind instead of function normal function application, makes is possible to treat Maybe's 
-//as normal values.
-function bind($func, Maybe $maybeVal) {
-	if($maybeVal->e()) {
-		return $maybeVal;
-	} else {
-		return $func($maybeVal->v());
-	}
-}
-
-//Just defining return, so Maybe officially is a monad.
-function mreturn($val) {return Maybe::just($val);}
 
 class Token {
 	private $kind;
@@ -80,6 +41,11 @@ class Lit implements Node {
 		return $this->val;
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newLit($val) {
+	return new Lit($val);
+}
 class Op implements Node {
 	private $kind;
 	private $left, $right;
@@ -106,6 +72,11 @@ class Op implements Node {
 		}
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newOp($kind, Node $left, Node $right) {
+	return new Op($kind, $left, $right);
+}
 class Par implements Node {
 	private $contents;
 	public function __construct(Node $content) {
@@ -115,10 +86,20 @@ class Par implements Node {
 		return $this->contents->evalu($var);
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newPar(Node $content) {
+	return new Node($content);
+}
 class Varx implements Node {
 	public function evalu($var) {
 		return $var;
 	}
+}
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newVarx() {
+	return new Varx;
 }
 
 function tokenize($string) {
@@ -153,7 +134,7 @@ function tokenize($string) {
 				if($string[$current] === '(') {$nestLevel += 1;}
 				if($string[$current] === ')') {$nestLevel -= 1;}
 				$current += 1;
-				if($current > strlen($string)) {return Maybe::error("No matching ')' found");}
+				if($current > (strlen($string) - 1)) {return Maybe::error("No matching ')' found");}
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
 			$current += 1;
@@ -166,7 +147,7 @@ function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "+" || $tokens[$i]->getVal() === "-") {
-				return new Op($tokens[$i]->getVal(),
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
@@ -175,7 +156,7 @@ function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "*" || $tokens[$i]->getVal() === "/") {
-				return new Op($tokens[$i]->getVal(),
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
@@ -184,20 +165,20 @@ function createTree(array $tokens) {
 	for($i = 0; $i < count($tokens); $i += 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "^") {
-				return new Op("^",
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
 		}
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Par) {
-		return new Par(createTree($tokens[0]->getVal()));
+		return Maybe::just(newPar(createTree($tokens[0]->getVal())));
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Lit) {
-		return new Lit($tokens[0]->getVal());
+		return Maybe::just(newLit($tokens[0]->getVal()));
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Varx) {
-		return new Varx();
+		return Maybe::just(newVarx());
 	}
 }
 function createFunc($string) {
