@@ -180,6 +180,11 @@ function createTree(array $tokens) {
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Varx) {
 		return Maybe::just(newVarx());
 	}
+	if(count($tokens) == 0) {
+		//An empty token array means that at some point there have been an operator
+		//with nothing on one of its sides. therefor it must imply a missing operand.
+		return Maybe::error('Operator missing operand');
+	}
 }
 function createFunc($string) {
 	//everything written in the Maybe monad... so hardcore!

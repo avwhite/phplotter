@@ -22,7 +22,7 @@ imagefilledrectangle($img, 0, 0, WIDTH, HEIGHT, $black);
 
 $mf = createFunc($_GET['expr']);
 if($mf->e()) {
-	imagestring($img, 1, 0, 0, $mf->m(), $blue);	
+	imagestring($img, 3, 5, 5, $mf->m(), $blue);	
 } else {
 	$f = $mf->v();
 	$xmin = $_GET['xmin'];
