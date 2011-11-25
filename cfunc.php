@@ -186,6 +186,13 @@ function createTree(array $tokens) {
 		//with nothing on one of its sides. therefor it must imply a missing operand.
 		return Maybe::error('Operator missing operand');
 	}
+	if(count($tokens) > 1) {
+		//if there is more than one token, and no operators, then the operands must
+		//need an operator
+		return Maybe::error('Operand missing operator');
+	}
+	//if we ever get here, something really unexpected have happened.
+	return Maybe::error('Unkown error');
 }
 function createFunc($string) {
 	//everything written in the Maybe monad... so hardcore!
