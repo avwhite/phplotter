@@ -63,6 +63,13 @@ function bind3($func, Maybe $v1, Maybe $v2, Maybe $v3) {
 
 function mreturn($val) {return Maybe::just($val);}
 
+function liftM($func) {
+	$r = function($a1) use ($func) {
+		return Maybe::just($func($a1));
+	};
+	return $r;
+}
+
 function liftM3($func) {
 	$r = function($a1, $a2, $a3) use ($func) {
 		return Maybe::just($func($a1, $a2, $a3));

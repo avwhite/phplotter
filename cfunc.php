@@ -89,7 +89,7 @@ class Par implements Node {
 //makes life much easier if constructers were normal functions instead
 //of magical things. Therefore i wrap them in this:
 function newPar(Node $content) {
-	return new Node($content);
+	return new Par($content);
 }
 class Varx implements Node {
 	public function evalu($var) {
@@ -137,6 +137,7 @@ function tokenize($string) {
 				if($current > (strlen($string) - 1)) {return Maybe::error("No matching ')' found");}
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
+			//not really sure about this shit: $res[] = bind2(liftM2('newToken'), mreturn(TokenType::Par), tokenize($holder)); 
 			$current += 1;
 		}
 		else { $current += 1; }
@@ -172,7 +173,7 @@ function createTree(array $tokens) {
 		}
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Par) {
-		return Maybe::just(newPar(createTree($tokens[0]->getVal())));
+		return bind(liftM('newPar'), bind('createTree', $tokens[0]->getVal()));
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Lit) {
 		return Maybe::just(newLit($tokens[0]->getVal()));
