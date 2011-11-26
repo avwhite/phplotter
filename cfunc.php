@@ -1,5 +1,7 @@
 <?php
 include('andfunc.php');
+include_once('maybe.php');
+
 class TokenType {
 	const Op = 0;
 	const Lit = 1;
@@ -39,6 +41,11 @@ class Lit implements Node {
 		return $this->val;
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newLit($val) {
+	return new Lit($val);
+}
 class Op implements Node {
 	private $kind;
 	private $left, $right;
@@ -65,6 +72,11 @@ class Op implements Node {
 		}
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newOp($kind, Node $left, Node $right) {
+	return new Op($kind, $left, $right);
+}
 class Par implements Node {
 	private $contents;
 	public function __construct(Node $content) {
@@ -74,10 +86,20 @@ class Par implements Node {
 		return $this->contents->evalu($var);
 	}
 }
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newPar(Node $content) {
+	return new Par($content);
+}
 class Varx implements Node {
 	public function evalu($var) {
 		return $var;
 	}
+}
+//makes life much easier if constructers were normal functions instead
+//of magical things. Therefore i wrap them in this:
+function newVarx() {
+	return new Varx;
 }
 
 function tokenize($string) {
@@ -112,19 +134,21 @@ function tokenize($string) {
 				if($string[$current] === '(') {$nestLevel += 1;}
 				if($string[$current] === ')') {$nestLevel -= 1;}
 				$current += 1;
+				if($current > (strlen($string) - 1)) {return Maybe::error("No matching ')' found");}
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
+			//not really sure about this shit: $res[] = bind2(liftM2('newToken'), mreturn(TokenType::Par), tokenize($holder)); 
 			$current += 1;
 		}
 		else { $current += 1; }
 	}
-	return $res;
+	return Maybe::just($res);
 }
 function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "+" || $tokens[$i]->getVal() === "-") {
-				return new Op($tokens[$i]->getVal(),
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
@@ -133,7 +157,7 @@ function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "*" || $tokens[$i]->getVal() === "/") {
-				return new Op($tokens[$i]->getVal(),
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
@@ -142,23 +166,37 @@ function createTree(array $tokens) {
 	for($i = 0; $i < count($tokens); $i += 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
 			if($tokens[$i]->getVal() === "^") {
-				return new Op("^",
+				return bind3(liftM3('newOp'), mreturn($tokens[$i]->getVal()),
 					createTree(array_slice($tokens,0,$i)),
 					createTree(array_slice($tokens,$i+1)));
 			}
 		}
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Par) {
-		return new Par(createTree($tokens[0]->getVal()));
+		return bind(liftM('newPar'), bind('createTree', $tokens[0]->getVal()));
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Lit) {
-		return new Lit($tokens[0]->getVal());
+		return Maybe::just(newLit($tokens[0]->getVal()));
 	}
 	if(count($tokens) == 1 && $tokens[0]->getKind() === TokenType::Varx) {
-		return new Varx();
+		return Maybe::just(newVarx());
 	}
+	if(count($tokens) == 0) {
+		//An empty token array means that at some point there have been an operator
+		//with nothing on one of its sides. therefor it must imply a missing operand.
+		return Maybe::error('Operator missing operand');
+	}
+	if(count($tokens) > 1) {
+		//if there is more than one token, and no operators, then the operands must
+		//need an operator
+		return Maybe::error('Operand missing operator');
+	}
+	//if we ever get here, something really unexpected have happened.
+	return Maybe::error('Unkown error');
 }
 function createFunc($string) {
-	return createTree(tokenize($string));
+	//everything written in the Maybe monad... so hardcore!
+	//the syntax isent as pretty as in haskell though...
+	return bind('createTree', bind('tokenize', mreturn($string)));
 }
 ?>
