@@ -144,7 +144,7 @@ function tokenize($string) {
 			$current += 1;
 		}
 		else {
-			return Maybe::error("Syntax error: Can't recognize: '".$string[$current]."'");
+			return Maybe::error("Syntax error: '".$string[$current]."' Does not belong here");
 		}
 	}
 	return Maybe::just($res);

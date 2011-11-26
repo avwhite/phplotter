@@ -12,8 +12,8 @@ function drawLine($img, $x1, $y1, $x2, $y2, $color) {
 	imageline($img, $x1, cy($y1), $x2, cy($y2), $color);
 }
 
-//This line should probably be uncommmented in the final version
-#header('Content-type: image/png');
+//Comment this line to show error messages.
+header('Content-type: image/png');
 $img = imagecreate(WIDTH, HEIGHT);
 $black = imagecolorallocate($img, 0, 0, 0);
 $blue = imagecolorallocate($img, 0, 255, 0);
