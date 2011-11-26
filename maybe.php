@@ -1,5 +1,8 @@
 <?php
-//This class represents a value or an error. Inspiration is taken from the haskell Maybe/Either classes.
+/*This class represents the result of a function that might fail.
+Inspiration is taken from the Maybe/Either types in haskell.
+But it is not strictly a copy of any of them.
+It is however still a monad. Since i have implemented both bind and return.*/
 class Maybe {
 	private function __construct() {}
 	private $val;
@@ -32,9 +35,10 @@ class Maybe {
 	}
 }
 
-//This class implements a monadic bind function for Maybe. Inspiration again taken from haskell.
-//Using bind instead of function normal function application, makes is possible to treat Maybe's 
-//as normal values.
+/*The bind family of functions makes it possible to treat Maybe's as
+normal values, with automated handling of any error. The function
+application syntas becomes quite weird though:
+bind('f', x); instead of f(x);*/
 function bind($func, Maybe $maybeVal) {
 	if($maybeVal->e()) {
 		return $maybeVal;
@@ -42,13 +46,15 @@ function bind($func, Maybe $maybeVal) {
 		return $func($maybeVal->v());
 	}
 }
-
-//Since there is no currying in php, i think that i will have to do this for every version of bind
-//that i am going to use. Also i have realized that this in fact is more like the Writer monad from
-//haskell, i don't think that it will be possible to concat the errors. If it is, then it would
-//atleast be neccesary to change maybe so it represents a function that might fail, instead of
-//the result of a function that might fail. Im not really sure if this is possible in php.
-//for now i just pass on the first error.
+function bind2($func, Maybe $v1, Maybe $v2) {
+	if($v1->e()) {
+		return $v1;
+	} elseif($v2->e()) {
+		return $v2;
+	} else {
+		return $func($v1->v(), $v2->v());
+	}
+}
 function bind3($func, Maybe $v1, Maybe $v2, Maybe $v3) {
 	if($v1->e()) {
 		return $v1;
@@ -60,16 +66,16 @@ function bind3($func, Maybe $v1, Maybe $v2, Maybe $v3) {
 		return $func($v1->v(), $v2->v(), $v3->v());
 	}
 }
-
+/*Takes a normail value and turns it into a Maybe value */
 function mreturn($val) {return Maybe::just($val);}
 
+/*Promotes a normal function to a Maybe function*/
 function liftM($func) {
 	$r = function($a1) use ($func) {
 		return Maybe::just($func($a1));
 	};
 	return $r;
 }
-
 function liftM3($func) {
 	$r = function($a1, $a2, $a3) use ($func) {
 		return Maybe::just($func($a1, $a2, $a3));
