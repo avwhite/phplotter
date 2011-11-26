@@ -1,5 +1,5 @@
 <?php
-include('andfunc.php');
+include_once('arithmetic.php');
 include_once('maybe.php');
 
 class TokenType {
@@ -38,7 +38,7 @@ class Lit implements Node {
 		$this->val = $val;
 	}
 	public function evalu($var) {
-		return $this->val;
+		return Maybe::just($this->val);
 	}
 }
 //makes life much easier if constructers were normal functions instead
@@ -56,19 +56,19 @@ class Op implements Node {
 	}
 	public function evalu($var) {
 		if($this->kind === "+") {
-			return add($this->left->evalu($var), $this->right->evalu($var));
+			return bind2('add', $this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "-") {
-			return sub($this->left->evalu($var), $this->right->evalu($var));
+			return bind2('sub', $this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "*") {
-			return mul($this->left->evalu($var), $this->right->evalu($var));
+			return bind2('mul', $this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "/") {
-			return div($this->left->evalu($var), $this->right->evalu($var));
+			return bind2('div', $this->left->evalu($var), $this->right->evalu($var));
 		}
 		else if($this->kind === "^") {
-			return expo($this->left->evalu($var), $this->right->evalu($var));
+			return bind2('expo', $this->left->evalu($var), $this->right->evalu($var));
 		}
 	}
 }
@@ -93,7 +93,7 @@ function newPar(Node $content) {
 }
 class Varx implements Node {
 	public function evalu($var) {
-		return $var;
+		return Maybe::just($var);
 	}
 }
 //makes life much easier if constructers were normal functions instead
@@ -129,7 +129,6 @@ function tokenize($string) {
 			$current += 1;
 		}
 		else if($string[$current] === "(") {
-			$current += 1;
 			$nestLevel = 0;
 			$holder = "";
 			while(!($string[$current] === ")" && $nestLevel === 0)) {
