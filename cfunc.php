@@ -103,6 +103,9 @@ function newVarx() {
 }
 
 function tokenize($string) {
+	if(empty($string)) {
+		return Maybe::error("Syntax error: Input empty");
+	}
 	$res;
 	$current = 0;
 	while($current < strlen($string)) {
@@ -134,13 +137,15 @@ function tokenize($string) {
 				if($string[$current] === '(') {$nestLevel += 1;}
 				if($string[$current] === ')') {$nestLevel -= 1;}
 				$current += 1;
-				if($current > (strlen($string) - 1)) {return Maybe::error("No matching ')' found");}
+				if($current > (strlen($string) - 1)) {return Maybe::error("Syntax error: No matching ')' found");}
 			}
 			$res[] = new Token(TokenType::Par, tokenize($holder));
 			//not really sure about this shit: $res[] = bind2(liftM2('newToken'), mreturn(TokenType::Par), tokenize($holder)); 
 			$current += 1;
 		}
-		else { $current += 1; }
+		else {
+			return Maybe::error("Syntax error: Can't recognize: '".$string[$current]."'");
+		}
 	}
 	return Maybe::just($res);
 }
@@ -184,12 +189,12 @@ function createTree(array $tokens) {
 	if(count($tokens) == 0) {
 		//An empty token array means that at some point there have been an operator
 		//with nothing on one of its sides. therefor it must imply a missing operand.
-		return Maybe::error('Operator missing operand');
+		return Maybe::error('Structure error: Operator missing operand');
 	}
 	if(count($tokens) > 1) {
 		//if there is more than one token, and no operators, then the operands must
 		//need an operator
-		return Maybe::error('Operand missing operator');
+		return Maybe::error('Structure error: Operand missing operator');
 	}
 	//if we ever get here, something really unexpected have happened.
 	return Maybe::error('Unkown error');
