@@ -38,7 +38,7 @@
 					xmax=<input type="text" name="xmax" value="<?php echo $xmax; ?>"/><br />
 					ymin=<input type="text" name="ymin" value="<?php echo $ymin; ?>"/>
 					ymax=<input type="text" name="ymax" value="<?php echo $ymax; ?>"/><br />
-					<input type="submit" name="PLOT!" />
+					<input type="submit" name="submit" value="PLOT!"/>
 				</form>
 			</div>
 
