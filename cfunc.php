@@ -129,6 +129,8 @@ function tokenize($string) {
 			$current += 1;
 		}
 		else if($string[$current] === "(") {
+			$current += 1;
+			if($current > (strlen($string) - 1)) {return Maybe::error("Syntax error: No matching ')' found");}
 			$nestLevel = 0;
 			$holder = "";
 			while(!($string[$current] === ")" && $nestLevel === 0)) {
