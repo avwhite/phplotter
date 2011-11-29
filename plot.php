@@ -25,20 +25,33 @@ function drawLine($img, $x1, $y1, $x2, $y2, $color) {
 }
 
 //http://stackoverflow.com/questions/7725278/round-to-nearest-nice-number
-//deep magic begins here
 function niceNumber($num) {
-	//the next power of 10 above num
-	$npw = pow(10, ceil(log10($num)));
-	//now we check were in the interval from 0 til our power num lies.
-	//it can never be lower than (1/10). So we check (2..3..4..5.. /10)
-	for($i = 2; $i < 10; ++$i) {
-		$toCheck = $npw * ($i/10);
-		if($num <= $toCheck) {
-			//we now have a (n/10) of the next power of 10 above our num, wich is what we wanted
-			return $toCheck;
+	if($num >= 0) {
+		//the next power of 10 above num
+		$npw = pow(10, ceil(log10($num)));
+		//now we check were in the interval from 0 til our power num lies.
+		//it can never be lower than (1/10). So we check (2..3..4..5.. /10)
+		for($i = 2; $i <= 10; ++$i) {
+			$toCheck = $npw * ($i/10);
+			if($num <= $toCheck) {
+				//we now have a (n/10) of the next power of 10 above our num, wich is what we wanted
+				return $toCheck;
+			}
+		}
+	}else{
+		$num = abs($num);
+		//the next power of 10 below num
+		$npw = pow(10, floor(log10($num)));
+		//now we check were in the interval from 0 til our power num lies.
+		//it can never be lower than (1/10). So we check (2..3..4..5.. /10)
+		for($i = 9; $i >= 1; --$i) {
+			$toCheck = $npw * $i;
+			if($num >= $toCheck) {
+				//we now have a (n/10) of the next power of 10 above our num, wich is what we wanted
+				return 0 - $toCheck;
+			}
 		}
 	}
-	return $npw;
 }
 
 function roundxInterval($pdist) {
@@ -52,17 +65,27 @@ function drawXM($img, $dist, $y, $color) {
 	global $xincr;
 	global $xmin;
 	global $xmax;
+	$y = $y > WIDTH ? WIDTH : $y;
+	$y = $y < 0 ? 0 : $y;
 	$rpdist = roundxInterval($dist);
 	$rudist = niceNumber($dist * $xincr);
 	$yu = $y + 5;
 	$yl = $y - 5;
-	$x = 0;
-	$i = $xmin;
+	$i = niceNumber($xmin);
+	$x = (($i - $xmin) / $xincr);
 	while($x <= WIDTH) {
 		drawLine($img, $x, $yl, $x, $yu, $color);
 		imagestring($img, 1, $x, cy($yl - 3), $i, $color);
 		$x += $rpdist;
 		$i += $rudist;
+	}
+	$i = niceNumber($xmin);
+	$x = (($i - $xmin) / $xincr);
+	while($x >= 0) {
+		drawLine($img, $x, $yl, $x, $yu, $color);
+		imagestring($img, 1, $x, cy($yl - 3), $i, $color);
+		$x -= $rpdist;
+		$i -= $rudist;
 	}
 }
 
@@ -86,7 +109,7 @@ if($mf->e()) {
 	$xzero = (0-$xmin) / $xincr;
 	drawLine($img, $xzero, 0, $xzero, HEIGHT, $white);
 	drawLine($img, 0, $yzero, WIDTH, $yzero, $white);
-	drawXM($img, 20, $yzero, $white);
+	drawXM($img, 40, $yzero, $white);
 
 	$lasty = Maybe::error("First last must be an error");
 	for($i = 0; $i <= WIDTH; $i += 1) {
