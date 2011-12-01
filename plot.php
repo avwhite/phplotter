@@ -5,6 +5,7 @@ include_once('arithmetic.php');
 
 define("WIDTH", 500);
 define("HEIGHT", 500);
+define("FONTF", "VeraMono.ttf");
 
 $xmin = $_GET['xmin'];
 $xmax = $_GET['xmax'];
@@ -60,12 +61,13 @@ function drawXM($img, $dist, $y, $color) {
 	$rudist = niceNumber($dist * $xincr);
 	$yu = $y + 5;
 	$yl = $y - 5;
-	$yd = $y < (HEIGHT/10) ? $yu + 10 : $yl - 3;
+	$yd = $y < (HEIGHT/10) ? $yu + 1 : $yl - 9;
 	$i = niceNumber($xmin);
 	$x = (($i - $xmin) / $xincr);
 	while($x <= WIDTH) {
 		drawLine($img, $x, $yl, $x, $yu, $color);
-		imagestring($img, 1, $x, cy($yd), $i, $color);
+		//imagestring($img, 1, $x, cy($yd), $i, $color);
+		imagettftext($img, 7, 0, $x, cy($yd), -$color, FONTF, $i);
 		$x += $rpdist;
 		$i += $rudist;
 	}
@@ -73,7 +75,8 @@ function drawXM($img, $dist, $y, $color) {
 	$x = (($i - $xmin) / $xincr);
 	while($x >= 0) {
 		drawLine($img, $x, $yl, $x, $yu, $color);
-		imagestring($img, 1, $x, cy($yd), $i, $color);
+		//imagestring($img, 1, $x, cy($yd), $i, $color);
+		imagettftext($img, 7, 0, $x, cy($yd), -$color, FONTF, $i);
 		$x -= $rpdist;
 		$i -= $rudist;
 	}
@@ -88,21 +91,38 @@ function drawYM($img, $dist, $x, $color) {
 	$rudist = niceNumber($dist * $yincr);
 	$xu = $x + 5;
 	$xl = $x - 5;
-	//$xd = $x < (WIDTH/10) ? $xu + 10 : $xl - 3;
-	$xd = $x;
 	$i = niceNumber($ymin);
 	$y = (($i - $ymin) / $yincr);
 	while($y <= HEIGHT) {
+		$xd=0;
+		if($x < (WIDTH/10)) {
+			$xd = $xu + 1;
+		} else {
+			//this part not working properly yet
+			$bbox = imagettfbbox(7, 0, FONTF, $i);
+			$plen = $bbox[2] - $bbox[0];
+			$xd = ($xu - 1) - $plen*2;
+		}
 		drawLine($img, $xl, $y, $xu, $y, $color);
-		imagestring($img, 1, $xd, cy($y), $i, $color);
+		//imagestring($img, 1, $xd, cy($y), $i, $color);
+		imagettftext($img, 7, 0, $xd, cy($y), -$color, FONTF, $i);
 		$y += $rpdist;
 		$i += $rudist;
 	}
 	$i = niceNumber($ymin);
 	$y = (($i - $ymin) / $yincr);
 	while($y >= 0) {
+		$xd=0;
+		if($x > (WIDTH/10)) {
+			$xd = $xu + 1;
+		} else {
+			//this part not working properly yet
+			$bbox = imagettfbbox(7, 0, FONTF, $i);
+			$plen = $bbox[2] - $bbox[0];
+			$xd = ($xu - 1) - $plen*2;
+		}
 		drawLine($img, $xl, $y, $xu, $y, $color);
-		imagestring($img, 1, $xd, cy($y), $i, $color);
+		imagettftext($img, 7, 0, $xd, cy($y), -$color, FONTF, $i);
 		$y -= $rpdist;
 		$i -= $rudist;
 	}
