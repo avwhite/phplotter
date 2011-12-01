@@ -42,40 +42,30 @@ function niceNumber($num) {
 		$num = abs($num);
 		//the next power of 10 below num
 		$npw = pow(10, floor(log10($num)));
-		//now we check were in the interval from 0 til our power num lies.
-		//it can never be lower than (1/10). So we check (2..3..4..5.. /10)
 		for($i = 9; $i >= 1; --$i) {
 			$toCheck = $npw * $i;
 			if($num >= $toCheck) {
-				//we now have a (n/10) of the next power of 10 above our num, wich is what we wanted
 				return 0 - $toCheck;
 			}
 		}
 	}
 }
 
-function roundxInterval($pdist) {
-	global $xincr;
-	$udist = $pdist * $xincr; 
-	$rudist = niceNumber($udist);
-	return ($rudist / $xincr);
-}
-
 function drawXM($img, $dist, $y, $color) {
 	global $xincr;
 	global $xmin;
-	global $xmax;
 	$y = $y > WIDTH ? WIDTH : $y;
 	$y = $y < 0 ? 0 : $y;
-	$rpdist = roundxInterval($dist);
+	$rpdist = niceNumber($dist * $xincr) / $xincr;
 	$rudist = niceNumber($dist * $xincr);
 	$yu = $y + 5;
 	$yl = $y - 5;
+	$yd = $y < (HEIGHT/10) ? $yu + 10 : $yl - 3;
 	$i = niceNumber($xmin);
 	$x = (($i - $xmin) / $xincr);
 	while($x <= WIDTH) {
 		drawLine($img, $x, $yl, $x, $yu, $color);
-		imagestring($img, 1, $x, cy($yl - 3), $i, $color);
+		imagestring($img, 1, $x, cy($yd), $i, $color);
 		$x += $rpdist;
 		$i += $rudist;
 	}
@@ -83,12 +73,40 @@ function drawXM($img, $dist, $y, $color) {
 	$x = (($i - $xmin) / $xincr);
 	while($x >= 0) {
 		drawLine($img, $x, $yl, $x, $yu, $color);
-		imagestring($img, 1, $x, cy($yl - 3), $i, $color);
+		imagestring($img, 1, $x, cy($yd), $i, $color);
 		$x -= $rpdist;
 		$i -= $rudist;
 	}
 }
 
+function drawYM($img, $dist, $x, $color) {
+	global $yincr;
+	global $ymin;
+	$x = $x > HEIGHT ? HEIGHT : $x;
+	$x = $x < 0 ? 0 : $x;
+	$rpdist = niceNumber($dist * $yincr) / $yincr;
+	$rudist = niceNumber($dist * $yincr);
+	$xu = $x + 5;
+	$xl = $x - 5;
+	//$xd = $x < (WIDTH/10) ? $xu + 10 : $xl - 3;
+	$xd = $x;
+	$i = niceNumber($ymin);
+	$y = (($i - $ymin) / $yincr);
+	while($y <= HEIGHT) {
+		drawLine($img, $xl, $y, $xu, $y, $color);
+		imagestring($img, 1, $xd, cy($y), $i, $color);
+		$y += $rpdist;
+		$i += $rudist;
+	}
+	$i = niceNumber($ymin);
+	$y = (($i - $ymin) / $yincr);
+	while($y >= 0) {
+		drawLine($img, $xl, $y, $xu, $y, $color);
+		imagestring($img, 1, $xd, cy($y), $i, $color);
+		$y -= $rpdist;
+		$i -= $rudist;
+	}
+}
 
 //Comment this line to show error messages.
 #header('Content-type: image/png');
@@ -110,6 +128,7 @@ if($mf->e()) {
 	drawLine($img, $xzero, 0, $xzero, HEIGHT, $white);
 	drawLine($img, 0, $yzero, WIDTH, $yzero, $white);
 	drawXM($img, 40, $yzero, $white);
+	drawYM($img, 40, $xzero, $white);
 
 	$lasty = Maybe::error("First last must be an error");
 	for($i = 0; $i <= WIDTH; $i += 1) {
