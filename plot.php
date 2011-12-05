@@ -101,7 +101,7 @@ function drawYM($img, $dist, $x, $color) {
 			//this part not working properly yet
 			$bbox = imagettfbbox(7, 0, FONTF, $i);
 			$plen = $bbox[2] - $bbox[0];
-			$xd = ($xu - 1) - $plen*2;
+			$xd = ($xu - 2 - ($xu - $xl))- $plen;
 		}
 		drawLine($img, $xl, $y, $xu, $y, $color);
 		//imagestring($img, 1, $xd, cy($y), $i, $color);
@@ -113,13 +113,13 @@ function drawYM($img, $dist, $x, $color) {
 	$y = (($i - $ymin) / $yincr);
 	while($y >= 0) {
 		$xd=0;
-		if($x > (WIDTH/10)) {
+		if($x < (WIDTH/10)) {
 			$xd = $xu + 1;
 		} else {
 			//this part not working properly yet
 			$bbox = imagettfbbox(7, 0, FONTF, $i);
 			$plen = $bbox[2] - $bbox[0];
-			$xd = ($xu - 1) - $plen*2;
+			$xd = ($xu - 2 - ($xu - $xl))- $plen;
 		}
 		drawLine($img, $xl, $y, $xu, $y, $color);
 		imagettftext($img, 7, 0, $xd, cy($y), -$color, FONTF, $i);

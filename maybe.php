@@ -1,8 +1,15 @@
 <?php
-/*This class represents the result of a function that might fail.
-Inspiration is taken from the Maybe/Either types in haskell.
-But it is not strictly a copy of any of them.
-It is however still a monad. Since i have implemented both bind and return.*/
+/**
+ *Maybe is a class representing a value OR an error.
+ *@package Maybe
+ *@author Andreas Vinter-Hviid
+ */
+
+/**This class represents the result of a function that might fail.
+ *Inspiration is taken from the Maybe/Either types in haskell.
+ *But it is not strictly a copy of any of them.
+ *It is however still a monad, since i have implemented both bind and return.
+ */
 class Maybe {
 	private function __construct() {}
 	private $val;
