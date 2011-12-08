@@ -1,7 +1,23 @@
 <?php
+/**
+ *@file cfunc.php
+ *@author Andreas Vinter-Hviid
+ *@copyright Andreas Vinter-Hviid
+ *@licence BSD 2-clause
+ *
+ *Creates functions of x that can be evaluated at different x values.
+ *
+ *The main thing one should be conserned with in the file is the createFunc function,
+ *which turns a string into a function that can be evaluated for different x values.
+ *The syntax for the string is normal math syntax including +-*\/ and () and the variable x
+ *Which is evaluated for.
+ */
 include_once('arithmetic.php');
 include_once('maybe.php');
 
+/**
+ *Enum containing different types of tokens.
+ */
 class TokenType {
 	const Op = 0;
 	const Lit = 1;
@@ -14,35 +30,99 @@ Define("MULS", "*");
 Define("DIVS", "/");
 Define("EXPS", "^");
 
+/**
+ *Class representing a token.
+ *
+ *A token has a type, represented by the TokenType enum and most have a values.
+ *Tokens are often used in an array, since an array of tokens can represent a
+ *mathmatical expression. There are 4 types of tokens
+ *
+ *Operators. They have a value of +-*\/ or ^ representing the 5 different operators.
+ *
+ *Literals. Their value is the number the represent e.g. 4 13 83.312 and so on.
+ *
+ *Parentheses. Their value is an array of other tokens. This makes token arrays kind of resemble a very flat tree strucure.
+ *
+ *Variables. This is a variable that will be substituded with a number depending in the params to the evalu functions arguments in the resulting syntax tree. for now there is only the x variable, but an arbitary number of variables could easily be implemented.
+ */
 class Token {
+	/**
+	 *The kind of Token.
+	 *@var TokenType $kind
+	 */
 	private $kind;
+	/**
+	 *The value of the Token.
+	 *@var any $value
+	 */
 	private $val;
+	/**
+	 *@param TokenType $kind the kind of the Token
+	 *@param any $val the value of the Token
+	 */
 	public function __construct($kind, $val) {
 		$this->kind = $kind;
 		$this->val = $val;
 	}
+	/**
+	 *getter for kind
+	 *@return TokenType the kind of the Token.
+	 */
 	public function getKind() {
 		return $this->kind;
 	}
+	/**
+	 *getter for value
+	 *@return any the value of the Token.
+	 */
 	public function getVal() {
 		return $this->val;
 	}
 }
 
+/**
+ *Interface describing minimum requriement for being in a syntax tree.
+ *
+ *A syntax tree is technicaly speaking just a Node. All types of nodes, excpect for leaf nodes(Lit) have other nodes as memebers, and thereby makes up a tree strucure.
+ */
 interface Node {
+	/**
+	 *evaluates the Node.
+	 *@param double $var The value to substitude with x.
+	 *@return double The result of the expression in a Maybe monad
+	 */
 	public function evalu($var);
 }
+/**
+ *A literal Node.
+ *
+ *This node represents a normal number. Evaluating just returns the number
+ */
 class Lit implements Node {
+	/**
+	 *The double precision value of the literal.
+	 */
 	private $val;
+	/**
+	 *@param double $val the value.
+	 */
 	public function __construct($val) {
 		$this->val = $val;
 	}
+	/**
+	 *Evaluates the Literal.
+	 *@param double $var the value to use for x. Dosent matter for this class, but for the tree itself it is important.
+	 *@return The result i.e. just $var in a Maybe monad.
+	 */
 	public function evalu($var) {
 		return Maybe::just($this->val);
 	}
 }
-//makes life much easier if constructers were normal functions instead
-//of magical things. Therefore i wrap them in this:
+/**
+ *This function is just wrapper for the Lit constructor.
+ *
+ *It is here, because you can do some stuff with functions that you can't do with constructors.
+ */
 function newLit($val) {
 	return new Lit($val);
 }
