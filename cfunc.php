@@ -126,14 +126,38 @@ class Lit implements Node {
 function newLit($val) {
 	return new Lit($val);
 }
+/**
+ *An operator Node.
+ *
+ *This node representa an operator that has two operands.
+ */
 class Op implements Node {
+	/**
+	 *The kind of the operator. Represented by a string.
+	 */
 	private $kind;
+	/**
+	 *@var Node $left the left operand.
+	 *@var Node $right the right operand.
+	 */
 	private $left, $right;
+	/**
+	 *Constructs an operator.
+	 *
+	 *@param string $kind the kind of the operator, represented by a string.
+	 *@param Node $left the left operand.
+	 *@param Node $right the right operand.
+	 */
 	public function __construct($kind, Node $left, Node $right) {
 		$this->kind = $kind;
 		$this->left = $left;
 		$this->right = $right;
 	}
+	/**
+	 *Evaluates the operator based on the result of the left and right operands.
+	 *@param double $var the value to use for x.
+	 *@return The result of the operator.
+	 */
 	public function evalu($var) {
 		if($this->kind === "+") {
 			return bind2('add', $this->left->evalu($var), $this->right->evalu($var));
@@ -152,36 +176,73 @@ class Op implements Node {
 		}
 	}
 }
-//makes life much easier if constructers were normal functions instead
-//of magical things. Therefore i wrap them in this:
+/**
+ *This function is just wrapper for the Op constructor.
+ *
+ *It is here, because you can do some stuff with functions that you can't do with constructors.
+ */
 function newOp($kind, Node $left, Node $right) {
 	return new Op($kind, $left, $right);
 }
+/**
+ *This class represents a bracket.
+ */
 class Par implements Node {
+	/**
+	 *The contents of the brackets.
+	 */
 	private $contents;
+	/**
+	 *Constructs a Par.
+	 *
+	 *@pram Node $content the contents of the bracket.
+	 */
 	public function __construct(Node $content) {
 		$this->contents = $content;
 	}
+	/**
+	 *Evaluates the bracket by evaluating the contents.
+	 *@param double $var the value to use for x.
+	 *@return The result of the contents.
+	 */
 	public function evalu($var) {
 		return $this->contents->evalu($var);
 	}
 }
-//makes life much easier if constructers were normal functions instead
-//of magical things. Therefore i wrap them in this:
+/**
+ *This function is just wrapper for the Par constructor.
+ *
+ *It is here, because you can do some stuff with functions that you can't do with constructors.
+ */
 function newPar(Node $content) {
 	return new Par($content);
 }
+/**
+ *This class represents the value x.
+ */
 class Varx implements Node {
+	/**
+	 *Evaluates x, by returning the value to use for x.
+	 *@param double $var the value to use for x.
+	 *@return the value to use for x.
+	 */
 	public function evalu($var) {
 		return Maybe::just($var);
 	}
 }
-//makes life much easier if constructers were normal functions instead
-//of magical things. Therefore i wrap them in this:
+/**
+ *This function is just wrapper for the Varx constructor.
+ *
+ *It is here, because you can do some stuff with functions that you can't do with constructors.
+ */
 function newVarx() {
 	return new Varx;
 }
-
+/**
+ *Turns a string into a series of tokens.
+ *@param string $string the string to tokenize
+ *@return an array of tokens in a maybe monad, since there is a alot of things that might go wrong.
+ */
 function tokenize($string) {
 	if(empty($string)) {
 		return Maybe::error("Syntax error: Input empty");
@@ -230,6 +291,11 @@ function tokenize($string) {
 	}
 	return Maybe::just($res);
 }
+/**
+ *Creates a syntax tree, that can be evaluated, from a string of tokens.
+ *@param array $tokens the input tokens.
+ *@return A syntax tree in a maybe monad since there is a lot of things that might go wrong.
+ */
 function createTree(array $tokens) {
 	for($i = count($tokens) - 1; $i >= 0; $i -= 1) {
 		if($tokens[$i]->getKind() === TokenType::Op) {
@@ -280,9 +346,14 @@ function createTree(array $tokens) {
 	//if we ever get here, something really unexpected have happened.
 	return Maybe::error('Unkown error');
 }
+/**
+ *The composition of tokenize and createTree.
+ *
+ *This is the function that users of the library should be most concerned with, since it takes a string and outputs a syntax tree.
+ *@param string $string the string to create a syntax tree for.
+ *@return a syntax tree for the string that can be evaluated in a maybe monad since there is alot of things that might go wrong.
+ */
 function createFunc($string) {
-	//everything written in the Maybe monad... so hardcore!
-	//the syntax isent as pretty as in haskell though...
 	return bind('createTree', bind('tokenize', mreturn($string)));
 }
 ?>
