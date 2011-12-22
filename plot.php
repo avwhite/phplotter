@@ -129,7 +129,7 @@ function drawYM($img, $dist, $x, $color) {
 }
 
 //Comment this line to show error messages.
-#header('Content-type: image/png');
+header('Content-type: image/png');
 $img = imagecreate(WIDTH, HEIGHT);
 $black = imagecolorallocate($img, 0, 0, 0);
 $blue = imagecolorallocate($img, 0, 255, 0);
